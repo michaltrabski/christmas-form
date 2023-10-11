@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { holidaysExampleResponse } from "../constants/constants";
+import { twMerge } from "tailwind-merge";
 
 interface FormInformation {
   firstname: string;
@@ -10,7 +12,6 @@ interface FormInformation {
   date: string;
 }
 
-const API_KEY = "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx"; // move to .env file
 const countryCode = "PL";
 const year = "2023";
 // const initialFormInfo: FormInformation = {
@@ -23,7 +24,7 @@ const year = "2023";
 // };
 
 const initialFormInfo: FormInformation = {
-  firstname: "",
+  firstname: "John",
   lastname: "",
   email: "",
   age: 0, // michal - this is wrong, change it later
@@ -34,23 +35,38 @@ const initialFormInfo: FormInformation = {
 export const Form = () => {
   const [formInfo, setFormInfo] = useState<FormInformation>(() => initialFormInfo);
 
-  // Holidays API
-  const [holidaysApi, setHolidaysApi] = useState<any>(null); // type it
+  const [holidaysData, setHolidaysData] = useState<
+    | {
+        country: string;
+        iso: string;
+        year: number;
+        date: string;
+        day: string;
+        name: string;
+        type: string;
+      }[]
+    | null
+  >(null);
 
   useEffect(() => {
-    const type = "public_holiday";
+    const type = "national_holiday";
+
+    console.log(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`);
     axios
       .get(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`, {
         headers: {
-          "X-Api-Key": API_KEY,
+          "X-Api-Key": "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx", // change it later to process.env.REACT_APP_API_KEY
         },
       })
       .then((res) => {
         console.log("res", res);
-        setHolidaysApi(res.data);
+        setHolidaysData(res.data);
       })
       .catch((err) => {
         console.log("err", err);
+
+        // if api is not working, use fake data
+        setHolidaysData(() => holidaysExampleResponse);
       });
   }, []);
 
@@ -93,73 +109,100 @@ export const Form = () => {
     setFormInfo((prev) => ({ ...prev, [name]: value }));
   };
 
+  const cssLabel = "block text-[#000853] font-normal text-base mb-1";
+  const cssInputText = "bg-white border border-[#CBB6E5] text-[#000853] rounded-lg w-full px-4 py-2";
+
   return (
-    <>
-      <form ref={formRef} className="p-3" onSubmit={handleSubmit}>
-        {/* firstname */}
-        <div>
-          <label htmlFor="firstname" className="block text-black">
+    <div className="max-w-md m-auto">
+      <h1 className="font-medium text-2xl   text-[#000853] sm:text-3xl mb-4 sm:truncate">Personal info</h1>
+      <form ref={formRef} onSubmit={handleSubmit}>
+        <div className="mb-2">
+          <label htmlFor="firstname" className={cssLabel}>
             First Name
           </label>
-          <input type="text" name="firstname" id="firstname" className="block border-gray-400 border-2" placeholder="John" onChange={handleChange} value={firstname} />
+          <input type="text" name="firstname" id="firstname" className={cssInputText} placeholder="John" onChange={handleChange} value={firstname} />
         </div>
 
         {/* lastname */}
-        <div>
-          <label htmlFor="lastname" className="block text-black">
+        <div className="mb-2">
+          <label htmlFor="lastname" className={cssLabel}>
             Last Name
           </label>
-          <input type="text" name="lastname" id="lastname" className="block border-gray-400 border-2" placeholder="Doe" onChange={handleChange} value={lastname} />
+          <input type="text" name="lastname" id="lastname" className={cssInputText} placeholder="Doe" onChange={handleChange} value={lastname} />
         </div>
 
         {/* email */}
-        <div>
-          <label htmlFor="email" className="block text-black">
+        <div className="mb-2">
+          <label htmlFor="email" className={cssLabel}>
             Email
           </label>
-          <input type="email" name="email" id="email" className="block border-gray-400 border-2" placeholder="josh.doe@email.com" onChange={handleChange} value={email} />
+          <input
+            type="email"
+            name="email"
+            id="email"
+            className={twMerge(cssInputText, "invalid:border-[#ED4545]")}
+            placeholder="josh.doe@email.com"
+            onChange={handleChange}
+            value={email}
+          />
         </div>
 
         {/* age range slider  */}
-        <div>
-          <label htmlFor="age" className="block text-black">
+        <div className="  mb-5">
+          <label htmlFor="age" className={twMerge(cssLabel, "mb-3")}>
             Age
           </label>
-          <input type="range" name="age" id="age" className="block border-gray-400 border-2" min="0" max="100" onChange={handleChange} value={age} />
+
+          <div className="relative">
+            <input
+              type="range"
+              name="age"
+              id="age"
+              min="8"
+              max="100"
+              onChange={handleChange}
+              value={age}
+              className="w-full h-1 bg-[#CBB6E5] rounded-lg appearance-none cursor-pointer accent-[#761BE4]"
+            />
+            <div className="absolute top-[-8px] left-0 text-[#000853] text-sm font-base">{8}</div>
+
+            <div className="absolute top-[-8px] right-0 text-[#000853] text-sm font-base">{100}</div>
+          </div>
         </div>
 
         {/* photo */}
-        <div>
-          <label htmlFor="photo" className="block text-black">
+        <div className="border-black border mb-2">
+          <label htmlFor="photo" className={cssLabel}>
             Photo
           </label>
           <input type="file" name="photo" id="photo" className="block border-gray-400 border-2" onChange={handleChange} value={photo} />
         </div>
 
         {/* date */}
-        <div>
-          <label htmlFor="date" className="block text-black">
+        <div className="border-black border mb-2">
+          <label htmlFor="date" className={cssLabel}>
             Date
           </label>
           <input type="date" name="date" id="date" className="block border-gray-400 border-2" onChange={handleChange} value={date} />
         </div>
 
         {/* submit */}
-        <div>
-          <button type="submit" className="block bg-blue-500 text-white">
+        <div className="border-black border mb-2">
+          <button type="submit" className="block bg-primary text-white rounded px-8 py-2 gap-2">
             Send Application
           </button>
         </div>
       </form>
+      <div className="mt-10 text-xs">
+        <pre>
+          formInfo:
+          <code>{JSON.stringify(formInfo, null, 2)}</code>
+        </pre>
 
-      <pre>
-        formInfo:
-        <code>{JSON.stringify(formInfo, null, 2)}</code>
-      </pre>
-
-      <pre>
-        <code>{JSON.stringify(holidaysApi, null, 2)}</code>
-      </pre>
-    </>
+        <pre>
+          <code>{JSON.stringify(holidaysData, null, 2)}</code>
+        </pre>
+      </div>
+    </div>
   );
 };
