@@ -48,18 +48,18 @@ export const Form = () => {
     formData.append("xxx", "111");
     console.log("formData", new FormData(form), formData, form);
 
-    // axios
-    //   .post("http://localhost:3000", formData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   })
-    //   .then((res) => {
-    //     console.log("res", res);
-    //   })
-    //   .catch((err) => {
-    //     console.log("err", err);
-    //   });
+    axios
+      .post("http://localhost:3000", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        console.log("res", res);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
