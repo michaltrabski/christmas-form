@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { holidaysExampleResponse } from "../constants/constants";
 import { twMerge } from "tailwind-merge";
+import { DatePicker } from "./DatePicker";
 
 interface FormInformation {
   firstname: string;
@@ -84,10 +85,9 @@ export const Form = () => {
     }
 
     const formData = new FormData(form);
-    formData.append("xxx", "111");
 
     for (const pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
+      console.log("formData michal ", `${pair[0]}: ${pair[1]}`, JSON.stringify(formData.entries()));
     }
 
     axios
@@ -107,6 +107,10 @@ export const Form = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const updateDate = (date: string) => {
+    setFormInfo((prev) => ({ ...prev, date }));
   };
 
   const cssLabel = "block text-[#000853] font-normal text-base mb-1";
@@ -171,24 +175,32 @@ export const Form = () => {
         </div>
 
         {/* photo */}
-        <div className="border-black border mb-2">
-          <label htmlFor="photo" className={cssLabel}>
-            Photo
-          </label>
-          <input type="file" name="photo" id="photo" className="block border-gray-400 border-2" onChange={handleChange} value={photo} />
+        <div className="mb-2">
+          <div className="flex items-center justify-center w-full">
+            <label htmlFor="photo" className="flex flex-col items-center justify-center w-full border-[#CBB6E5] rounded-lg cursor-pointer bg-white    hover:bg-gray-100  ">
+              <div className="flex flex-col items-center justify-center py-5 px-2">
+                <p className="text-[#898DA9]  ">
+                  <span className="text-[#761BE4] underline">Upload a file</span> or drag and drop
+                </p>
+              </div>
+              <input id="photo" type="file" name="photo" className="hidden" onChange={handleChange} value={photo} />
+            </label>
+          </div>
         </div>
 
         {/* date */}
-        <div className="border-black border mb-2">
+        <div className=" mb-2">
           <label htmlFor="date" className={cssLabel}>
             Date
           </label>
           <input type="date" name="date" id="date" className="block border-gray-400 border-2" onChange={handleChange} value={date} />
         </div>
 
+        <DatePicker updateDate={updateDate} />
+
         {/* submit */}
-        <div className="border-black border mb-2">
-          <button type="submit" className="block bg-primary text-white rounded px-8 py-2 gap-2">
+        <div className="mb-2">
+          <button type="submit" className="w-full block bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled>
             Send Application
           </button>
         </div>

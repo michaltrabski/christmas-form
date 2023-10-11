@@ -7,9 +7,6 @@ export default {
         primary: "#761BE4",
       },
     },
-    fontFamily: {
-      myfont: ["MyFont", "sans-serif"],
-    },
   },
   plugins: [],
 };
