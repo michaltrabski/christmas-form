@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 interface FormInformation {
@@ -10,6 +10,9 @@ interface FormInformation {
   date: string;
 }
 
+const API_KEY = "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx"; // move to .env file
+const countryCode = "PL";
+const year = "2023";
 // const initialFormInfo: FormInformation = {
 //   firstname: "jan",
 //   lastname: "kowal",
@@ -31,6 +34,26 @@ const initialFormInfo: FormInformation = {
 export const Form = () => {
   const [formInfo, setFormInfo] = useState<FormInformation>(() => initialFormInfo);
 
+  // Holidays API
+  const [holidaysApi, setHolidaysApi] = useState<any>(null); // type it
+
+  useEffect(() => {
+    const type = "public_holiday";
+    axios
+      .get(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`, {
+        headers: {
+          "X-Api-Key": API_KEY,
+        },
+      })
+      .then((res) => {
+        console.log("res", res);
+        setHolidaysApi(res.data);
+      })
+      .catch((err) => {
+        console.log("err", err);
+      });
+  }, []);
+
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
   const { firstname, lastname, email, age, photo, date } = formInfo;
@@ -46,7 +69,10 @@ export const Form = () => {
 
     const formData = new FormData(form);
     formData.append("xxx", "111");
-    console.log("formData", new FormData(form), formData, form);
+
+    for (const pair of formData.entries()) {
+      console.log(`${pair[0]}: ${pair[1]}`);
+    }
 
     axios
       .post("http://localhost:3000", formData, {
@@ -63,7 +89,6 @@ export const Form = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handleChange e", e);
     const { name, value } = e.target;
     setFormInfo((prev) => ({ ...prev, [name]: value }));
   };
@@ -128,7 +153,12 @@ export const Form = () => {
       </form>
 
       <pre>
+        formInfo:
         <code>{JSON.stringify(formInfo, null, 2)}</code>
+      </pre>
+
+      <pre>
+        <code>{JSON.stringify(holidaysApi, null, 2)}</code>
       </pre>
     </>
   );
