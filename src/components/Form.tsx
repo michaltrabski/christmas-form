@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { holidaysExampleResponse } from "../constants/constants";
 import { twMerge } from "tailwind-merge";
 import { DatePicker } from "./DatePicker";
 
-interface FormInformation {
+interface FormInfo {
   firstname: string;
   lastname: string;
   email: string;
@@ -15,16 +15,8 @@ interface FormInformation {
 
 const countryCode = "PL";
 const year = "2023";
-// const initialFormInfo: FormInformation = {
-//   firstname: "jan",
-//   lastname: "kowal",
-//   email: "michal.trabski@gmail.com",
-//   age: 54,
-//   photo: "",
-//   date: "2023-10-20",
-// };
 
-const initialFormInfo: FormInformation = {
+const initialFormInfo: FormInfo = {
   firstname: "John",
   lastname: "",
   email: "",
@@ -34,7 +26,7 @@ const initialFormInfo: FormInformation = {
 };
 
 export const Form = () => {
-  const [formInfo, setFormInfo] = useState<FormInformation>(() => initialFormInfo);
+  const [formInfo, setFormInfo] = useState<FormInfo>(() => initialFormInfo);
 
   const [holidaysData, setHolidaysData] = useState<
     | {
@@ -52,7 +44,6 @@ export const Form = () => {
   useEffect(() => {
     const type = "national_holiday";
 
-    console.log(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`);
     axios
       .get(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`, {
         headers: {
@@ -105,13 +96,24 @@ export const Form = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
+
+    if (files && files[0]) {
+      const imageUrl = URL.createObjectURL(files[0]);
+
+      setFormInfo((prev) => ({ ...prev, [name]: imageUrl }));
+      return;
+    }
+
     setFormInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const updateDate = (date: string) => {
-    setFormInfo((prev) => ({ ...prev, date }));
-  };
+  const updateDate = useCallback(
+    (date: string) => {
+      setFormInfo((prev) => ({ ...prev, date }));
+    },
+    [setFormInfo]
+  );
 
   const cssLabel = "block text-[#000853] font-normal text-base mb-1";
   const cssInputText = "bg-white border border-[#CBB6E5] text-[#000853] rounded-lg w-full px-4 py-2";
@@ -126,7 +128,6 @@ export const Form = () => {
           </label>
           <input type="text" name="firstname" id="firstname" className={cssInputText} placeholder="John" onChange={handleChange} value={firstname} />
         </div>
-
         {/* lastname */}
         <div className="mb-2">
           <label htmlFor="lastname" className={cssLabel}>
@@ -134,7 +135,6 @@ export const Form = () => {
           </label>
           <input type="text" name="lastname" id="lastname" className={cssInputText} placeholder="Doe" onChange={handleChange} value={lastname} />
         </div>
-
         {/* email */}
         <div className="mb-2">
           <label htmlFor="email" className={cssLabel}>
@@ -150,7 +150,6 @@ export const Form = () => {
             value={email}
           />
         </div>
-
         {/* age range slider  */}
         <div className="  mb-5">
           <label htmlFor="age" className={twMerge(cssLabel, "mb-3")}>
@@ -173,7 +172,6 @@ export const Form = () => {
             <div className="absolute top-[-8px] right-0 text-[#000853] text-sm font-base">{100}</div>
           </div>
         </div>
-
         {/* photo */}
         <div className="mb-2">
           <div className="flex items-center justify-center w-full">
@@ -183,9 +181,10 @@ export const Form = () => {
                   <span className="text-[#761BE4] underline">Upload a file</span> or drag and drop
                 </p>
               </div>
-              <input id="photo" type="file" name="photo" className="hidden" onChange={handleChange} value={photo} />
+              <input id="photo" type="file" name="photo" className="hidden" onChange={handleChange} />
             </label>
           </div>
+          {photo && <div style={{ backgroundImage: `url(${photo})` }} className="w-[50px] h-[50px] bg-cover bg-center bg-no-repeat " />}
         </div>
 
         {/* date */}

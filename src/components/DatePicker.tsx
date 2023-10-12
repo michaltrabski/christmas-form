@@ -41,9 +41,9 @@ export const DatePicker: FC<DatePickerProps> = ({ updateDate }) => {
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </button>
@@ -59,9 +59,9 @@ export const DatePicker: FC<DatePickerProps> = ({ updateDate }) => {
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </button>
@@ -72,19 +72,24 @@ export const DatePicker: FC<DatePickerProps> = ({ updateDate }) => {
             <div className="days">
               <div className="days-of-week grid grid-cols-7 mb-1">
                 {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
-                  return <span className="text-center h-6 leading-6 text-sm font-medium dark:text-gray-400">{day}</span>;
+                  return (
+                    <span key={day} className="text-center h-6 leading-6 text-sm font-medium dark:text-gray-400">
+                      {day}
+                    </span>
+                  );
                 })}
               </div>
               <div className="w-64 grid grid-cols-7">
-                {arrayOfDaysNumbers.map((day) => {
+                {/* todo michal key i is not correct!  */}
+                {arrayOfDaysNumbers.map((day, i) => {
                   const cssCurrentDay = selectedDay === day ? "bg-blue-700 rounded-full text-white" : "";
 
                   if (day === 0) {
-                    return <span></span>;
+                    return <span key={i}></span>;
                   }
 
                   return (
-                    <span className={twMerge(cssDay, cssCurrentDay)} onClick={() => handleDayChange(day)}>
+                    <span key={i} className={twMerge(cssDay, cssCurrentDay)} onClick={() => handleDayChange(day)}>
                       {day}
                     </span>
                   );

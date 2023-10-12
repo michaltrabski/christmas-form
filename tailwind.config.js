@@ -7,6 +7,12 @@ export default {
         primary: "#761BE4",
       },
     },
+    container: {
+      padding: "2rem",
+    },
+  },
+  variants: {
+    extend: {},
   },
   plugins: [],
 };
