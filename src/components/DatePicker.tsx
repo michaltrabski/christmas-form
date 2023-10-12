@@ -39,29 +39,21 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, sele
     updateDate(year, monthIndex, day);
   };
 
-  // const handleNextMonthClick = () => {
-  //   const nextMonthIndex = monthIndex === 11 ? 0 : monthIndex + 1;
-  //   updateDate(year, nextMonthIndex, selectedDay);
-  // };
-
   const monthName = monthIndexToName(monthIndex);
 
   const daysInMonthArr = useMemo(() => getDaysInMonthArr(year, monthIndex), [year, monthIndex]);
 
   const cssDay =
-    "p-2 hover:bg-gray-100  block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-gray-900 font-semibold text-sm day disabled:opacity-50 disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
+    "p-2 hover:bg-gray-100 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-gray-900 font-semibold text-sm day disabled:opacity-50 disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
 
   return (
     <>
       <div className="mb-3 top-0 left-0 z-50 pt-2 active block datepicker-orient-bottom datepicker-orient-left">
-        <div className="datepicker-picker inline-block rounded-lg bg-white dark:bg-gray-700 shadow-lg p-4">
+        <div className="datepicker-picker inline-block rounded-lg bg-white shadow-lg p-4">
           <div className="datepicker-header">
-            <div className="datepicker-title bg-white dark:bg-gray-700 dark:text-white px-2 py-3 text-center font-semibold"></div>
+            <div className="datepicker-title bg-white px-2 py-3 text-center font-semibold"></div>
             <div className="datepicker-controls flex justify-between mb-2">
-              <button
-                type="button"
-                className="bg-white dark:bg-gray-700 rounded-lg   dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 prev-btn"
-              >
+              <button type="button" className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 prev-btn">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                   <path
                     fillRule="evenodd"
@@ -72,13 +64,13 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, sele
               </button>
               <button
                 type="button"
-                className="text-sm rounded-lg text-gray-900 dark:text-white bg-white dark:bg-gray-700 font-semibold py-2.5 px-5 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200 view-switch"
+                className="text-sm rounded-lg text-gray-900 bg-white font-semibold py-2.5 px-5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 view-switch"
               >
                 {monthName} {year}
               </button>
               <button
                 type="button"
-                className="bg-white dark:bg-gray-700 rounded-lg   dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-white text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 next-btn"
+                className="bg-white rounded-lg hover:bg-gray-100   hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 next-btn"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -96,7 +88,7 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, sele
                 <div className="days-of-week grid grid-cols-7 mb-1">
                   {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
                     return (
-                      <span key={day} className="text-center h-6 leading-6 text-sm font-medium dark:text-gray-400">
+                      <span key={day} className="text-center h-6 leading-6 text-sm font-medium  ">
                         {day}
                       </span>
                     );
