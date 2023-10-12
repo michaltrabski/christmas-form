@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { holidaysExampleResponse } from "../constants/constants";
+import { COUNTRY_CODE, holidaysExampleResponse } from "../constants/constants";
 import { twMerge } from "tailwind-merge";
 import { DatePicker } from "./DatePicker";
+import { yearMonthIndexDayToStr } from "../helpers/helpers";
 
 interface FormInfo {
   firstname: string;
@@ -10,64 +11,103 @@ interface FormInfo {
   email: string;
   age: number;
   photo: string;
-  date: string;
+  dateStr: string;
 }
 
-const countryCode = "PL";
-const year = "2023";
+export interface HolidayInfo {
+  country: string;
+  iso: string;
+  year: number;
+  date: string;
+  day: string;
+  name: string;
+  type: string;
+}
+
+interface FormError {
+  firstname: string;
+  lastname: string;
+  email: string;
+  age: string;
+  photo: string;
+  dateStr: string;
+}
 
 const initialFormInfo: FormInfo = {
-  firstname: "John",
+  firstname: "",
   lastname: "",
   email: "",
-  age: 0, // michal - this is wrong, change it later
+  age: 0,
   photo: "",
-  date: "",
+  dateStr: "",
+};
+
+const initialError: FormError = {
+  firstname: "",
+  lastname: "",
+  email: "",
+  age: "",
+  photo: "",
+  dateStr: "",
 };
 
 export const Form = () => {
-  const [formInfo, setFormInfo] = useState<FormInfo>(() => initialFormInfo);
+  const [year] = useState(() => new Date().getFullYear());
+  const [monthIndex] = useState(() => new Date().getMonth());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
 
-  const [holidaysData, setHolidaysData] = useState<
-    | {
-        country: string;
-        iso: string;
-        year: number;
-        date: string;
-        day: string;
-        name: string;
-        type: string;
-      }[]
-    | null
-  >(null);
+  const [formInfo, setFormInfo] = useState<FormInfo>(() => initialFormInfo);
+  const [formError, setFormError] = useState<FormError>(() => initialError);
+
+  const isFormError = Object.values(formError).filter((value) => value.length > 0).length > 0;
+
+  const validate = (formInfo: FormInfo) => {
+    const { firstname, lastname, email, age, photo, dateStr: date } = formInfo;
+    const errors = {
+      firstname: firstname.length === 0 ? "First name can not be empty" : "",
+      lastname: lastname.length === 0 ? "Last name can not be empty" : "",
+      email: email.length === 0 ? "Email can not be empty" : "",
+      age: age === 0 ? "Age must be over 18" : "",
+      photo: photo.length === 0 ? "Please add photo" : "",
+      dateStr: date.length === 0 ? "Please select a date" : "",
+    };
+    setFormError(errors);
+
+    return { errors, countErrors: Object.values(errors).filter((err) => err.length > 0).length };
+  };
 
   useEffect(() => {
-    const type = "national_holiday";
-
     axios
-      .get(`https://api.api-ninjas.com/v1/holidays?country=${countryCode}&year=${year}&type=${type}`, {
+      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${year}`, {
         headers: {
           "X-Api-Key": "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx", // change it later to process.env.REACT_APP_API_KEY
         },
       })
       .then((res) => {
         console.log("res", res);
-        setHolidaysData(res.data);
+        setHolidaysInfo(res.data);
       })
       .catch((err) => {
         console.log("err", err);
 
         // if api is not working, use fake data
-        setHolidaysData(() => holidaysExampleResponse);
+        setHolidaysInfo(() => holidaysExampleResponse);
       });
-  }, []);
+  }, [year]);
 
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
-  const { firstname, lastname, email, age, photo, date } = formInfo;
+  const { firstname, lastname, email, age, photo, dateStr: date } = formInfo;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const { countErrors } = validate(formInfo);
+
+    if (countErrors > 0) {
+      return;
+    }
 
     const form = formRef.current;
 
@@ -109,24 +149,26 @@ export const Form = () => {
   };
 
   const updateDate = useCallback(
-    (date: string) => {
-      setFormInfo((prev) => ({ ...prev, date }));
+    (year: number, monthIndex: number, selectedDay: number) => {
+      setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, selectedDay) }));
+      setSelectedDay(selectedDay);
     },
-    [setFormInfo]
+    [setFormInfo, setSelectedDay]
   );
 
   const cssLabel = "block text-[#000853] font-normal text-base mb-1";
-  const cssInputText = "bg-white border border-[#CBB6E5] text-[#000853] rounded-lg w-full px-4 py-2";
+  const cssInputText = "bg-white border border-[#CBB6E5] text-[#000853] rounded-lg w-full px-4 py-2 active:border-[#761BE4]";
 
   return (
     <div className="max-w-md m-auto">
       <h1 className="font-medium text-2xl   text-[#000853] sm:text-3xl mb-4 sm:truncate">Personal info</h1>
-      <form ref={formRef} onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit} noValidate>
         <div className="mb-2">
           <label htmlFor="firstname" className={cssLabel}>
             First Name
           </label>
           <input type="text" name="firstname" id="firstname" className={cssInputText} placeholder="John" onChange={handleChange} value={firstname} />
+          {formError.firstname && <p className="text-sm text-red-500">{formError.firstname}</p>}
         </div>
         {/* lastname */}
         <div className="mb-2">
@@ -134,6 +176,7 @@ export const Form = () => {
             Last Name
           </label>
           <input type="text" name="lastname" id="lastname" className={cssInputText} placeholder="Doe" onChange={handleChange} value={lastname} />
+          {formError.lastname && <p className="text-sm text-red-500">{formError.lastname}</p>}
         </div>
         {/* email */}
         <div className="mb-2">
@@ -144,11 +187,12 @@ export const Form = () => {
             type="email"
             name="email"
             id="email"
-            className={twMerge(cssInputText, "invalid:border-[#ED4545]")}
+            className={twMerge(cssInputText, formError.email && "invalid:border-[#ED4545]")}
             placeholder="josh.doe@email.com"
             onChange={handleChange}
             value={email}
           />
+          {formError.email && <p className="text-sm text-red-500">{formError.email}</p>}
         </div>
         {/* age range slider  */}
         <div className="  mb-5">
@@ -170,6 +214,7 @@ export const Form = () => {
             <div className="absolute top-[-8px] left-0 text-[#000853] text-sm font-base">{8}</div>
 
             <div className="absolute top-[-8px] right-0 text-[#000853] text-sm font-base">{100}</div>
+            {formError.age && <p className="text-sm text-red-500">{formError.age}</p>}
           </div>
         </div>
         {/* photo */}
@@ -184,6 +229,7 @@ export const Form = () => {
               <input id="photo" type="file" name="photo" className="hidden" onChange={handleChange} />
             </label>
           </div>
+          {formError.photo && <p className="text-sm text-red-500">{formError.photo}</p>}
           {photo && <div style={{ backgroundImage: `url(${photo})` }} className="w-[50px] h-[50px] bg-cover bg-center bg-no-repeat " />}
         </div>
 
@@ -192,28 +238,41 @@ export const Form = () => {
           <label htmlFor="date" className={cssLabel}>
             Date
           </label>
-          <input type="date" name="date" id="date" className="block border-gray-400 border-2" onChange={handleChange} value={date} />
-        </div>
+          <input type="date" name="date" id="date" className="hidden" value={date} readOnly />
 
-        <DatePicker updateDate={updateDate} />
+          {holidaysInfo ? (
+            <DatePicker holidaysInfo={holidaysInfo} updateDate={updateDate} year={year} monthIndex={monthIndex} selectedDay={selectedDay} />
+          ) : (
+            <p className="pb-2">Fetching data about holidays</p>
+          )}
+          {formError.dateStr && <p className="text-sm text-red-500">{formError.dateStr}</p>}
+        </div>
 
         {/* submit */}
         <div className="mb-2">
-          <button type="submit" className="w-full block bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled>
+          <button type="submit" className="block mb-2 w-full   bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled={isFormError}>
             Send Application
           </button>
+
+          {isFormError && (
+            <div className="text-sm text-red-500">
+              <p>
+                <strong>Please fix errors in the form:</strong>
+              </p>
+
+              {Object.values(formError)
+                .filter((value) => value.length > 0)
+                .map((value) => (
+                  <p key={value}>{value}</p>
+                ))}
+            </div>
+          )}
         </div>
       </form>
-      <div className="mt-10 text-xs">
-        <pre>
-          formInfo:
-          <code>{JSON.stringify(formInfo, null, 2)}</code>
-        </pre>
 
-        <pre>
-          <code>{JSON.stringify(holidaysData, null, 2)}</code>
-        </pre>
-      </div>
+      <pre>
+        <code>{JSON.stringify(formInfo, null, 2)}</code>
+      </pre>
     </div>
   );
 };
