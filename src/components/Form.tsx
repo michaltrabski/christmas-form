@@ -39,7 +39,6 @@ export const Form = () => {
   const [year] = useState(() => new Date().getFullYear());
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => new Date().getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [selectedHour, setSelectedHour] = useState<number | null>(null);
 
   const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
 
