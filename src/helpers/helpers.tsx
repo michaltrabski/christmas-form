@@ -36,6 +36,5 @@ export const getDaysInMonthArr = (year: number, monthIndex: number) => {
   const daysInNextMonthArrSliced = daysInNextMonthArr.slice(0, 42 - arraySum.length);
   const next = daysInNextMonthArrSliced.map((day) => ({ day, monthIndex: nextMonthIndex, year }));
 
-  console.log([...arraySum, ...next]);
   return [...arraySum, ...next];
 };

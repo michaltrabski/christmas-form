@@ -14,6 +14,8 @@ interface FormInfo {
   dateStr: string;
 }
 
+interface FormError extends FormInfo {}
+
 export interface HolidayInfo {
   country: string;
   iso: string;
@@ -24,25 +26,7 @@ export interface HolidayInfo {
   type: string;
 }
 
-interface FormError {
-  firstname: string;
-  lastname: string;
-  email: string;
-  age: string;
-  photo: string;
-  dateStr: string;
-}
-
-const initialFormInfo: FormInfo = {
-  firstname: "",
-  lastname: "",
-  email: "",
-  age: "",
-  photo: "",
-  dateStr: "",
-};
-
-const initialError: FormError = {
+const initialValue = {
   firstname: "",
   lastname: "",
   email: "",
@@ -53,15 +37,17 @@ const initialError: FormError = {
 
 export const Form = () => {
   const [year] = useState(() => new Date().getFullYear());
-  const [monthIndex] = useState(() => new Date().getMonth());
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => new Date().getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedHour, setSelectedHour] = useState<number | null>(null);
+
   const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
 
-  const [formInfo, setFormInfo] = useState<FormInfo>(() => initialFormInfo);
+  const [formInfo, setFormInfo] = useState<FormInfo>(() => initialValue);
   const [isFormSent, setIsFormSent] = useState(false);
   const { firstname, lastname, email, age, photo, dateStr: date } = formInfo;
 
-  const [formError, setFormError] = useState<FormError>(() => initialError);
+  const [formError, setFormError] = useState<FormError>(() => initialValue);
   const [isFirstValidationDone, setIsFirstValidationDone] = useState(false);
   const isFormError = Object.values(formError).filter((value) => value.length > 0).length > 0;
 
@@ -270,13 +256,17 @@ export const Form = () => {
         </div>
 
         <div className="mb-2">
-          <label htmlFor="date" className={cssLabel}>
-            Date
-          </label>
           <input type="date" name="date" id="date" className="hidden" value={date} readOnly />
 
           {holidaysInfo ? (
-            <DatePicker holidaysInfo={holidaysInfo} updateDate={updateDate} year={year} monthIndex={monthIndex} selectedDay={selectedDay} />
+            <DatePicker
+              holidaysInfo={holidaysInfo}
+              updateDate={updateDate}
+              year={year}
+              selectedMonthIndex={selectedMonthIndex}
+              selectedDay={selectedDay}
+              setSelectedMonthIndex={setSelectedMonthIndex}
+            />
           ) : (
             <p className="pb-2">Fetching data about holidays</p>
           )}
@@ -284,7 +274,7 @@ export const Form = () => {
         </div>
 
         <div className="mb-2">
-          <button type="submit" className="block mb-2 w-full bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled={isFormError}>
+          <button type="submit" className="block mb-2 w-full bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled={isFormError || !holidaysInfo}>
             Send Application
           </button>
 
