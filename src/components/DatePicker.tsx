@@ -2,9 +2,9 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import axios from "axios";
 
-import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
+import { getDaysInMonthArray, monthIndexToName, valuesToDateString } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
-import { COUNTRY_CODE, HOLIDAY_TYPES, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
+import { COUNTRY_CODE, HOLIDAYS_ENDPOINT, HOLIDAY_TYPES, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
 
 interface DatePickerProps {
   selectDate: (year: number, monthIndex: number, selectedDay: number, time?: string) => void;
@@ -32,7 +32,7 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
     }
 
     const holiday = holidaysInfo?.find((h) => {
-      const isTheSameDate = h.date === yearMonthIndexDayToStr(selectedYear, selectedMonthIndex, selectedDay);
+      const isTheSameDate = h.date === valuesToDateString(selectedYear, selectedMonthIndex, selectedDay);
       const isTypeObservance = h.type === HOLIDAY_TYPES.OBSERVANCE;
 
       return isTheSameDate && isTypeObservance;
@@ -48,7 +48,7 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
 
   useEffect(() => {
     axios
-      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${callendarYear}`, {
+      .get(`${HOLIDAYS_ENDPOINT}?country=${COUNTRY_CODE}&year=${callendarYear}`, {
         headers: {
           "X-Api-Key": import.meta.env.VITE_API_KEY,
         },
@@ -87,10 +87,10 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
     setCallendarMonthIndex(callendarMonthIndex - 1);
   };
 
-  const daysInMonthArr = useMemo(() => getDaysInMonthArr(callendarYear, callendarMonthIndex), [callendarYear, callendarMonthIndex]);
+  const daysInMonthArray = useMemo(() => getDaysInMonthArray(callendarYear, callendarMonthIndex), [callendarYear, callendarMonthIndex]);
 
   const cssDay =
-    "p-2  block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-[#000853] font-semibold text-sm day disabled:text-[#898DA9]  disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
+    "p-2 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-[#000853] font-semibold text-sm day disabled:text-[#898DA9] disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
 
   return (
     <div className="flex gap-4">
@@ -146,10 +146,10 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
                     })}
                   </div>
                   <div className="w-64 grid grid-cols-7">
-                    {daysInMonthArr.map(({ _year, _monthIndex, _day }, i) => {
+                    {daysInMonthArray.map(({ _year, _monthIndex, _day }, i) => {
                       const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
 
-                      const dateAsString = yearMonthIndexDayToStr(_year, _monthIndex, _day);
+                      const dateAsString = valuesToDateString(_year, _monthIndex, _day);
 
                       const isSunday = i % 7 === 6;
                       const isNationalHoliday = holidaysInfo?.find((h) => {

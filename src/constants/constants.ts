@@ -1,3 +1,6 @@
+export const SUBMIT_ENDPOINT = "http://letsworkout.pl/submit";
+export const HOLIDAYS_ENDPOINT = "https://api.api-ninjas.com/v1/holidays";
+
 export const COUNTRY_CODE = "PL";
 
 export enum HOLIDAY_TYPES {

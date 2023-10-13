@@ -3,7 +3,8 @@ import axios from "axios";
 import { twMerge } from "tailwind-merge";
 
 import { DatePicker } from "./DatePicker";
-import { validateForm, yearMonthIndexDayToStr } from "../helpers/helpers";
+import { validateForm, valuesToDateString } from "../helpers/helpers";
+import { SUBMIT_ENDPOINT } from "../constants/constants";
 
 export interface FormInfo {
   firstname: string;
@@ -72,13 +73,13 @@ export const Form = () => {
     const formData = new FormData(form);
 
     axios
-      .post("http://localhost:3000", formData, {
+      .post(SUBMIT_ENDPOINT, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       .then((res) => {
-        console.log("res", res);
+        console.log("handle success", res);
         setIsFormSent(true);
       })
       .catch((err) => {
@@ -112,20 +113,19 @@ export const Form = () => {
 
   const selectDate = useCallback(
     (year: number, monthIndex: number, day: number, time?: string) => {
+      setSelectedYear(year);
+      setSelectedMonthIndex(monthIndex);
+      setSelectedDay(day);
+
       if (time) {
-        setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, day, time) }));
-        setSelectedYear(year);
-        setSelectedMonthIndex(monthIndex);
-        setSelectedDay(day);
+        setFormInfo((prev) => ({ ...prev, dateStr: valuesToDateString(year, monthIndex, day, time) }));
         setSelectedTime(time);
 
         return;
       }
 
-      setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, day) }));
-      setSelectedYear(year);
-      setSelectedMonthIndex(monthIndex);
-      setSelectedDay(day);
+      setFormInfo((prev) => ({ ...prev, dateStr: valuesToDateString(year, monthIndex, day) }));
+
       setSelectedTime("");
     },
     [setFormInfo, setSelectedDay, setSelectedMonthIndex, setSelectedYear]

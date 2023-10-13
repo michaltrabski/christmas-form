@@ -6,7 +6,7 @@ export const monthIndexToName = (monthIndex: number) => {
   return months[monthIndex];
 };
 
-export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: number, time?: string) => {
+export const valuesToDateString = (year: number, monthIndex: number, day: number, time?: string) => {
   const month = monthIndex + 1;
 
   const monthStr = month < 10 ? `0${month}` : `${month}`;
@@ -19,7 +19,7 @@ export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: nu
   return `${year}-${monthStr}-${dayStr}`;
 };
 
-export const getDaysInMonthArr = (_year: number, _monthIndex: number) => {
+export const getDaysInMonthArray = (_year: number, _monthIndex: number) => {
   const firstDayIndex = new Date(_year, _monthIndex, 1).getDay(); // 0 - Sunday, 1 - Monday, etc.
 
   const sliceStart = firstDayIndex > 1 ? firstDayIndex - 1 : 6;
