@@ -60,13 +60,26 @@ export const validateForm = (data: FormInfo): { countErrors: number; errors: For
     return emailRegex.test(email) ? "" : "Email is invalid";
   };
 
+  const validateDateString = (dateStr: string) => {
+    console.log(dateStr, dateStr.length, dateStr.length === 10);
+    if (dateStr.length === 0) {
+      return "Date can not be empty";
+    }
+
+    if (dateStr.length === 10) {
+      return "Select also time (hour and minute)";
+    }
+
+    return "";
+  };
+
   const errors = {
     firstname: data.firstname.length === 0 ? "First name can not be empty" : "",
     lastname: data.lastname.length === 0 ? "Last name can not be empty" : "",
     email: validateEmail(data.email),
     age: validateAge(data.age),
     photo: data.photo.length === 0 ? "Please add photo" : "",
-    dateStr: data.dateStr.length === 0 ? "Please select a date" : "",
+    dateStr: validateDateString(data.dateStr),
   };
 
   return { errors, countErrors: Object.values(errors).filter((err) => err.length > 0).length };

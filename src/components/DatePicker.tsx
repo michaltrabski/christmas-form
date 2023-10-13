@@ -5,6 +5,8 @@ import axios from "axios";
 import { getDaysInMonthArray, monthIndexToName, valuesToDateString } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
 import { COUNTRY_CODE, HOLIDAYS_ENDPOINT, HOLIDAY_TYPES, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
+import { IconPolygonLeft } from "../icons/IconPolygonLeft";
+import { IconPolygonRight } from "../icons/IconPolygonRight";
 
 interface DatePickerProps {
   selectDate: (year: number, monthIndex: number, selectedDay: number, time?: string) => void;
@@ -90,29 +92,22 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
   const daysInMonthArray = useMemo(() => getDaysInMonthArray(callendarYear, callendarMonthIndex), [callendarYear, callendarMonthIndex]);
 
   const cssDay =
-    "p-2 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-[#000853] font-semibold text-sm day disabled:text-[#898DA9] disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
+    "p-2 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center font-semibold text-sm day disabled:text-[#898DA9] disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
 
   return (
     <div className="flex gap-4">
       <div>
-        <p className="text-[#000853] font-normal text-base mb-1">Date</p>
+        <p className="mb-1">Date</p>
         <div className="mb-3">
           <div className="rounded-lg bg-white p-4 border border-[#CBB6E5]">
             <div className="">
-              <div className="bg-white px-2 py-3 text-center font-semibold"></div>
               <div className="flex justify-between mb-2">
                 <button
                   onClick={() => prevMonth()}
                   type="button"
                   className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      fillRule="evenodd"
-                      d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <IconPolygonLeft />
                 </button>
 
                 <div className="text-sm rounded-lg text-gray-900 bg-white font-semibold py-2.5 px-5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
@@ -123,56 +118,49 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
                   type="button"
                   className="bg-white rounded-lg hover:bg-gray-100 hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      fillRule="evenodd"
-                      d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <IconPolygonRight />
                 </button>
               </div>
             </div>
-            <div className="p-1">
-              <div className="flex">
-                <div>
-                  <div className="days-of-week grid grid-cols-7 mb-1">
-                    {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
-                      return (
-                        <span key={day} className="text-center h-6 leading-6 text-sm font-medium">
-                          {day}
-                        </span>
-                      );
-                    })}
-                  </div>
-                  <div className="w-64 grid grid-cols-7">
-                    {daysInMonthArray.map(({ _year, _monthIndex, _day }, i) => {
-                      const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
 
-                      const dateAsString = valuesToDateString(_year, _monthIndex, _day);
+            <div className="flex p-1">
+              <div>
+                <div className="days-of-week grid grid-cols-7 mb-1">
+                  {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
+                    return (
+                      <span key={day} className="text-center h-6 leading-6 text-sm font-medium">
+                        {day}
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="w-64 grid grid-cols-7">
+                  {daysInMonthArray.map(({ _year, _monthIndex, _day }, i) => {
+                    const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
 
-                      const isSunday = i % 7 === 6;
-                      const isNationalHoliday = holidaysInfo?.find((h) => {
-                        const isTheSameDate = h.date === dateAsString;
-                        const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
+                    const dateAsString = valuesToDateString(_year, _monthIndex, _day);
 
-                        return isTheSameDate && isTypeNationalHoliday;
-                      });
+                    const isSunday = i % 7 === 6;
+                    const isNationalHoliday = holidaysInfo?.find((h) => {
+                      const isTheSameDate = h.date === dateAsString;
+                      const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
 
-                      const isDayInCurrentMonth = callendarMonthIndex === _monthIndex;
+                      return isTheSameDate && isTypeNationalHoliday;
+                    });
 
-                      return (
-                        <button
-                          key={dateAsString}
-                          className={twMerge(cssDay, cssSelectedDay)}
-                          onClick={() => selectDate(callendarYear, callendarMonthIndex, _day)}
-                          disabled={isSunday || !!isNationalHoliday || !isDayInCurrentMonth}
-                        >
-                          {_day}
-                        </button>
-                      );
-                    })}
-                  </div>
+                    const isDayInCurrentMonth = callendarMonthIndex === _monthIndex;
+
+                    return (
+                      <button
+                        key={dateAsString}
+                        className={twMerge(cssDay, cssSelectedDay)}
+                        onClick={() => selectDate(callendarYear, callendarMonthIndex, _day)}
+                        disabled={isSunday || !!isNationalHoliday || !isDayInCurrentMonth}
+                      >
+                        {_day}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -180,7 +168,7 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
         </div>
         {holidayName && (
           <p className="pb-2">
-            <span className="relative top-[-1px] pr-1 text-[#000853]">
+            <span className="relative top-[-1px] pr-1">
               <IconError />
             </span>
             <span>{holidayName}</span>
@@ -190,7 +178,7 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
 
       {selectedYear && selectedMonthIndex && selectedDay && (
         <div>
-          <p className="text-[#000853] font-normal text-base mb-1">Time</p>
+          <p className="mb-1">Time</p>
           {["11:00", "13:30", "16:00", "18:45"].map((_time) => {
             const isSelected = selectedTime === _time;
             const cssSelected = isSelected ? "border-2 border-[#761BE4]" : "";
@@ -198,7 +186,7 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
             return (
               <div key={_time} className="pb-2">
                 <button
-                  className={twMerge("bg-white border border-[#CBB6E5] px-3 py-2 text-[#000853] rounded-lg", cssSelected)}
+                  className={twMerge("bg-white border border-[#CBB6E5] px-3 py-2 rounded-lg", cssSelected)}
                   onClick={() => selectDate(selectedYear, selectedMonthIndex, selectedDay, _time)}
                 >
                   {_time}

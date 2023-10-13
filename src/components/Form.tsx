@@ -131,12 +131,12 @@ export const Form = () => {
     [setFormInfo, setSelectedDay, setSelectedMonthIndex, setSelectedYear]
   );
 
-  const cssLabel = "block text-[#000853] font-normal text-base mb-1";
-  const cssInputText = "bg-white border border-[#CBB6E5] text-[#000853] rounded-lg w-full px-4 py-2 active:border-[#761BE4]";
+  const cssLabel = "block mb-1";
+  const cssInputText = "bg-white border border-[#CBB6E5] rounded-lg w-full px-4 py-2 active:border-[#761BE4]";
 
   return (
     <div className="max-w-md m-auto pb-20">
-      <h1 className="font-medium text-2xl   text-[#000853] sm:text-3xl mb-4 sm:truncate">Personal info</h1>
+      <h1 className="font-medium text-2xl sm:text-3xl mb-4 sm:truncate">Personal info</h1>
       <form ref={formRef} onSubmit={handleSubmit} noValidate>
         <div className="mb-2">
           <label htmlFor="firstname" className={cssLabel}>
@@ -162,7 +162,7 @@ export const Form = () => {
           {formError.email && <p className="text-sm text-red-500">{formError.email}</p>}
         </div>
 
-        <div className="  mb-5">
+        <div className="mb-5">
           <label htmlFor="age" className={twMerge(cssLabel, "mb-3")}>
             Age
           </label>
@@ -172,15 +172,24 @@ export const Form = () => {
               type="range"
               name="age"
               id="age"
-              min="8"
+              min="0"
               max="100"
               onChange={handleChange}
-              value={age}
+              value={age || 0}
               className="w-full h-1 bg-[#CBB6E5] rounded-lg appearance-none cursor-pointer accent-[#761BE4]"
             />
-            <div className="absolute top-[-8px] left-0 text-[#000853] text-sm font-base">{8}</div>
+            <div className="absolute top-[-10px] text-sm ">{0}</div>
+            <div
+              style={{ left: `${+age * 0.925}%` }}
+              className="inline-block relative border border-[#CBB6E5]  bg-white top-2 px-2 py-1 rounded text-xs text-[#761BE4] font-medium"
+            >
+              <span> {age || 0} </span>
+              <div className="absolute top-0 left-[50%]">
+                <div className="w-0 h-0  translate-y-[-6px] translate-x-[-50%] border-l-[6px] border-l-transparent border-b-[6px] border-b-[#CBB6E5] border-r-[6px] border-r-transparent"></div>
+              </div>
+            </div>
 
-            <div className="absolute top-[-8px] right-0 text-[#000853] text-sm font-base">{100}</div>
+            <div className="absolute top-[-10px] right-0 text-sm ">{100}</div>
             {formError.age && <p className="text-sm text-red-500">{formError.age}</p>}
           </div>
         </div>
