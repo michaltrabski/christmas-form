@@ -1,8 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
-import { HolidayInfo } from "./Form";
 import { IconError } from "../icons/IconError";
+import { HOLIDAY_TYPES, HolidayInfo } from "../constants/constants";
 
 interface DatePickerProps {
   holidaysInfo: HolidayInfo[];
@@ -24,7 +24,7 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setS
 
     const holiday = holidaysInfo.find((h) => {
       const isTheSameDate = h.date === yearMonthIndexDayToStr(year, selectedMonthIndex, selectedDay);
-      const isTypeObservance = h.type === "OBSERVANCE";
+      const isTypeObservance = h.type === HOLIDAY_TYPES.OBSERVANCE;
 
       return isTheSameDate && isTypeObservance;
     });

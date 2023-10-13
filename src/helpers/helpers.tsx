@@ -1,3 +1,5 @@
+import { FormError, FormInfo } from "../components/Form";
+
 export const monthIndexToName = (monthIndex: number) => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -37,4 +39,31 @@ export const getDaysInMonthArr = (year: number, monthIndex: number) => {
   const next = daysInNextMonthArrSliced.map((day) => ({ day, monthIndex: nextMonthIndex, year }));
 
   return [...arraySum, ...next];
+};
+
+export const validateForm = (data: FormInfo): { countErrors: number; errors: FormError } => {
+  const validateAge = (age: string) => {
+    const ageInt = parseInt(age, 10);
+    return ageInt >= 18 ? "" : "Age must be over 18";
+  };
+
+  const validateEmail = (email: string) => {
+    if (email.length === 0) {
+      return "Email can not be empty";
+    }
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    return emailRegex.test(email) ? "" : "Email is invalid";
+  };
+
+  const errors = {
+    firstname: data.firstname.length === 0 ? "First name can not be empty" : "",
+    lastname: data.lastname.length === 0 ? "Last name can not be empty" : "",
+    email: validateEmail(data.email),
+    age: validateAge(data.age),
+    photo: data.photo.length === 0 ? "Please add photo" : "",
+    dateStr: data.dateStr.length === 0 ? "Please select a date" : "",
+  };
+
+  return { errors, countErrors: Object.values(errors).filter((err) => err.length > 0).length };
 };

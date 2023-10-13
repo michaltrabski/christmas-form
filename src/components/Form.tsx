@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { COUNTRY_CODE, holidaysExampleResponse } from "../constants/constants";
+import { COUNTRY_CODE, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
 import { twMerge } from "tailwind-merge";
 import { DatePicker } from "./DatePicker";
-import { yearMonthIndexDayToStr } from "../helpers/helpers";
+import { validateForm, yearMonthIndexDayToStr } from "../helpers/helpers";
 
-interface FormInfo {
+export interface FormInfo {
   firstname: string;
   lastname: string;
   email: string;
@@ -14,17 +14,7 @@ interface FormInfo {
   dateStr: string;
 }
 
-interface FormError extends FormInfo {}
-
-export interface HolidayInfo {
-  country: string;
-  iso: string;
-  year: number;
-  date: string;
-  day: string;
-  name: string;
-  type: string;
-}
+export interface FormError extends FormInfo {}
 
 const initialValue = {
   firstname: "",
@@ -50,36 +40,6 @@ export const Form = () => {
   const [isFirstValidationDone, setIsFirstValidationDone] = useState(false);
   const isFormError = Object.values(formError).filter((value) => value.length > 0).length > 0;
 
-  const validate = (formInfo: FormInfo) => {
-    const { firstname, lastname, email, photo, age, dateStr } = formInfo;
-
-    const validateAge = (age: string) => {
-      const ageInt = parseInt(age, 10);
-      return ageInt >= 18 ? "" : "Age must be over 18";
-    };
-
-    const validateEmail = (email: string) => {
-      if (email.length === 0) {
-        return "Email can not be empty";
-      }
-
-      const emailRegex = /\S+@\S+\.\S+/;
-      return emailRegex.test(email) ? "" : "Email is invalid";
-    };
-
-    const errors = {
-      firstname: firstname.length === 0 ? "First name can not be empty" : "",
-      lastname: lastname.length === 0 ? "Last name can not be empty" : "",
-      email: validateEmail(email),
-      age: validateAge(age),
-      photo: photo.length === 0 ? "Please add photo" : "",
-      dateStr: dateStr.length === 0 ? "Please select a date" : "",
-    };
-    setFormError(errors);
-
-    return { errors, countErrors: Object.values(errors).filter((err) => err.length > 0).length };
-  };
-
   const validateField = (fieldName: keyof FormInfo, value: string) => {
     if (!isFirstValidationDone) {
       return;
@@ -87,7 +47,8 @@ export const Form = () => {
 
     const newFormInfo = { ...formInfo, [fieldName]: value };
 
-    validate(newFormInfo);
+    const { errors } = validateForm(newFormInfo);
+    setFormError(errors);
   };
 
   useEffect(() => {
@@ -115,7 +76,8 @@ export const Form = () => {
     e.preventDefault();
 
     setIsFirstValidationDone(true);
-    const { countErrors } = validate(formInfo);
+    const { countErrors, errors } = validateForm(formInfo);
+    setFormError(errors);
 
     if (countErrors > 0) {
       return;
@@ -298,6 +260,10 @@ export const Form = () => {
           )}
         </div>
       </form>
+
+      <pre>
+        <code>{JSON.stringify(formInfo, null, 2)}</code>
+      </pre>
     </div>
   );
 };

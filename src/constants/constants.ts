@@ -1,5 +1,21 @@
 export const COUNTRY_CODE = "PL";
 
+export enum HOLIDAY_TYPES {
+  NATIONAL_HOLIDAY = "NATIONAL_HOLIDAY",
+  OBSERVANCE = "OBSERVANCE",
+  SEASON = "SEASON",
+}
+
+export interface HolidayInfo {
+  country: string;
+  iso: string;
+  year: number;
+  date: string;
+  day: string;
+  name: string;
+  type: string;
+}
+
 export const holidaysExampleResponse = [
   {
     country: "Poland",
