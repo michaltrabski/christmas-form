@@ -26,8 +26,8 @@ const initialValue = {
 };
 
 export const Form = () => {
-  const [year] = useState(() => new Date().getFullYear());
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(() => new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState<number | null>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
@@ -53,7 +53,7 @@ export const Form = () => {
 
   useEffect(() => {
     axios
-      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${year}`, {
+      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${selectedYear}`, {
         headers: {
           "X-Api-Key": "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx", // change it later to process.env.REACT_APP_API_KEY
         },
@@ -68,7 +68,7 @@ export const Form = () => {
         // if api is not working, use fake data
         setHolidaysInfo(() => holidaysExampleResponse);
       });
-  }, [year]);
+  }, [selectedYear]);
 
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
@@ -130,12 +130,14 @@ export const Form = () => {
     setFormInfo((prev) => ({ ...prev, photo: imageUrl }));
   };
 
-  const updateDate = useCallback(
-    (year: number, monthIndex: number, selectedDay: number) => {
-      setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, selectedDay) }));
-      setSelectedDay(selectedDay);
+  const selectDate = useCallback(
+    (year: number, monthIndex: number, day: number) => {
+      setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, day) }));
+      setSelectedYear(year);
+      setSelectedMonthIndex(monthIndex);
+      setSelectedDay(day);
     },
-    [setFormInfo, setSelectedDay]
+    [setFormInfo, setSelectedDay, setSelectedMonthIndex, setSelectedYear]
   );
 
   const cssLabel = "block text-[#000853] font-normal text-base mb-1";
@@ -220,14 +222,7 @@ export const Form = () => {
           <input type="date" name="date" id="date" className="hidden" value={date} readOnly />
 
           {holidaysInfo ? (
-            <DatePicker
-              holidaysInfo={holidaysInfo}
-              updateDate={updateDate}
-              year={year}
-              selectedMonthIndex={selectedMonthIndex}
-              selectedDay={selectedDay}
-              setSelectedMonthIndex={setSelectedMonthIndex}
-            />
+            <DatePicker holidaysInfo={holidaysInfo} selectDate={selectDate} selectedYear={selectedYear} selectedMonthIndex={selectedMonthIndex} selectedDay={selectedDay} />
           ) : (
             <p className="pb-2">Fetching data about holidays</p>
           )}

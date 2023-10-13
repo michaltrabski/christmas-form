@@ -6,24 +6,30 @@ import { HOLIDAY_TYPES, HolidayInfo } from "../constants/constants";
 
 interface DatePickerProps {
   holidaysInfo: HolidayInfo[];
-  updateDate: (year: number, monthIndex: number, selectedDay: number) => void;
-  setSelectedMonthIndex: (monthIndex: number) => void;
-  year: number;
-  selectedMonthIndex: number;
+  selectDate: (year: number, monthIndex: number, selectedDay: number) => void;
+  selectedYear: number | null;
+  selectedMonthIndex: number | null;
   selectedDay: number | null;
 }
 
-export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setSelectedMonthIndex, selectedDay, selectedMonthIndex, year }) => {
+export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, selectedYear, selectedMonthIndex, selectedDay }) => {
+  const [callendarYear, setCallendarYear] = useState(() => new Date().getFullYear());
+  const [callendarMonthIndex, setCallendarMonthIndex] = useState(() => new Date().getMonth());
+
   const [holidayName, setHolidayName] = useState("");
 
   useEffect(() => {
+    if (!selectedYear || !selectedMonthIndex || !selectedDay) {
+      return;
+    }
+
     if (selectedDay === null) {
       setHolidayName("");
       return;
     }
 
     const holiday = holidaysInfo.find((h) => {
-      const isTheSameDate = h.date === yearMonthIndexDayToStr(year, selectedMonthIndex, selectedDay);
+      const isTheSameDate = h.date === yearMonthIndexDayToStr(selectedYear, selectedMonthIndex, selectedDay);
       const isTypeObservance = h.type === HOLIDAY_TYPES.OBSERVANCE;
 
       return isTheSameDate && isTypeObservance;
@@ -35,15 +41,31 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setS
     }
 
     setHolidayName("");
-  }, [holidaysInfo, year, selectedMonthIndex, selectedDay]);
+  }, [holidaysInfo, selectedYear, selectedMonthIndex, selectedDay]);
 
-  const handleDayClick = (monthIndex: number, day: number) => {
-    updateDate(year, monthIndex, day);
+  const monthName = monthIndexToName(callendarMonthIndex);
+
+  const nextMonth = () => {
+    if (callendarMonthIndex === 11) {
+      setCallendarMonthIndex(0);
+      setCallendarYear(callendarYear + 1);
+      return;
+    }
+
+    setCallendarMonthIndex(callendarMonthIndex + 1);
   };
 
-  const monthName = monthIndexToName(selectedMonthIndex);
+  const prevMonth = () => {
+    if (callendarMonthIndex === 0) {
+      setCallendarMonthIndex(11);
+      setCallendarYear(callendarYear - 1);
+      return;
+    }
 
-  const daysInMonthArr = useMemo(() => getDaysInMonthArr(year, selectedMonthIndex), [year, selectedMonthIndex]);
+    setCallendarMonthIndex(callendarMonthIndex - 1);
+  };
+
+  const daysInMonthArr = useMemo(() => getDaysInMonthArr(callendarYear, callendarMonthIndex), [callendarYear, callendarMonthIndex]);
 
   const cssDay =
     "p-2  block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center text-[#000853] font-semibold text-sm day disabled:text-[#898DA9]  disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
@@ -58,12 +80,9 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setS
               <div className="bg-white px-2 py-3 text-center font-semibold"></div>
               <div className="flex justify-between mb-2">
                 <button
-                  onClick={() => {
-                    setSelectedMonthIndex(selectedMonthIndex === 0 ? 11 : selectedMonthIndex - 1);
-                  }}
-                  disabled={selectedMonthIndex === 0}
+                  onClick={() => prevMonth()}
                   type="button"
-                  className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 prev-btn"
+                  className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -75,13 +94,12 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setS
                 </button>
 
                 <div className="text-sm rounded-lg text-gray-900 bg-white font-semibold py-2.5 px-5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                  {monthName} {year}
+                  {monthName} {callendarYear}
                 </div>
                 <button
-                  onClick={() => setSelectedMonthIndex(selectedMonthIndex === 11 ? 0 : selectedMonthIndex + 1)}
-                  disabled={selectedMonthIndex === 11}
+                  onClick={() => nextMonth()}
                   type="button"
-                  className="bg-white rounded-lg hover:bg-gray-100   hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200 next-btn"
+                  className="bg-white rounded-lg hover:bg-gray-100 hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -106,27 +124,29 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, updateDate, setS
                     })}
                   </div>
                   <div className="w-64 grid grid-cols-7">
-                    {daysInMonthArr.map(({ day, monthIndex, year }, i) => {
-                      const cssSelectedDay = selectedDay === day && selectedMonthIndex === monthIndex ? "bg-[#761BE4] rounded-full text-white" : "";
-                      const dateAsString = yearMonthIndexDayToStr(year, monthIndex, day);
+                    {daysInMonthArr.map(({ _year, _monthIndex, _day }, i) => {
+                      const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
+
+                      const dateAsString = yearMonthIndexDayToStr(_year, _monthIndex, _day);
 
                       const isSunday = i % 7 === 6;
                       const isNationalHoliday = holidaysInfo.find((h) => {
                         const isTheSameDate = h.date === dateAsString;
-                        const isTypeNationalHoliday = h.type === "NATIONAL_HOLIDAY";
+                        const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
 
                         return isTheSameDate && isTypeNationalHoliday;
                       });
-                      const isDayInCurrentMonth = selectedMonthIndex === monthIndex;
+
+                      const isDayInCurrentMonth = callendarMonthIndex === _monthIndex;
 
                       return (
                         <button
                           key={dateAsString}
                           className={twMerge(cssDay, cssSelectedDay)}
-                          onClick={() => handleDayClick(monthIndex, day)}
+                          onClick={() => selectDate(callendarYear, callendarMonthIndex, _day)}
                           disabled={isSunday || !!isNationalHoliday || !isDayInCurrentMonth}
                         >
-                          {day}
+                          {_day}
                         </button>
                       );
                     })}

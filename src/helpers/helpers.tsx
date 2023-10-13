@@ -15,28 +15,28 @@ export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: nu
   return `${year}-${monthStr}-${dayStr}`;
 };
 
-export const getDaysInMonthArr = (year: number, monthIndex: number) => {
-  const firstDayIndex = new Date(year, monthIndex, 1).getDay(); // 0 - Sunday, 1 - Monday, etc.
+export const getDaysInMonthArr = (_year: number, _monthIndex: number) => {
+  const firstDayIndex = new Date(_year, _monthIndex, 1).getDay(); // 0 - Sunday, 1 - Monday, etc.
 
   const sliceStart = firstDayIndex > 1 ? firstDayIndex - 1 : 6;
 
-  const prevMonthIndex = monthIndex === 0 ? 11 : monthIndex - 1;
-  const howManyDaysInPrevMonth = new Date(year, monthIndex === 0 ? 11 : monthIndex - 1, 0).getDate();
+  const prevMonthIndex = _monthIndex === 0 ? 11 : _monthIndex - 1;
+  const howManyDaysInPrevMonth = new Date(_year, _monthIndex === 0 ? 11 : _monthIndex - 1, 0).getDate();
   const daysInPrevMonthArr = Array.from({ length: howManyDaysInPrevMonth }, (_, i) => i + 1);
   const daysInPrevMonthArrSliced = daysInPrevMonthArr.slice(daysInPrevMonthArr.length - sliceStart);
-  const prev = daysInPrevMonthArrSliced.map((day) => ({ day, monthIndex: prevMonthIndex, year }));
+  const prev = daysInPrevMonthArrSliced.map((_day) => ({ _year, _monthIndex: prevMonthIndex, _day }));
 
-  const howManyDaysInCurrentMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const howManyDaysInCurrentMonth = new Date(_year, _monthIndex + 1, 0).getDate();
   const daysInCurrenMonthArr = Array.from({ length: howManyDaysInCurrentMonth }, (_, i) => i + 1);
-  const current = daysInCurrenMonthArr.map((day) => ({ day, monthIndex, year }));
+  const current = daysInCurrenMonthArr.map((_day) => ({ _monthIndex, _year, _day }));
 
   const arraySum = [...prev, ...current];
 
-  const nextMonthIndex = monthIndex === 11 ? 0 : monthIndex + 1;
-  const howManyDaysInNextMonth = new Date(year, nextMonthIndex, 0).getDate();
+  const nextMonthIndex = _monthIndex === 11 ? 0 : _monthIndex + 1;
+  const howManyDaysInNextMonth = new Date(_year, nextMonthIndex, 0).getDate();
   const daysInNextMonthArr = Array.from({ length: howManyDaysInNextMonth }, (_, i) => i + 1);
   const daysInNextMonthArrSliced = daysInNextMonthArr.slice(0, 42 - arraySum.length);
-  const next = daysInNextMonthArrSliced.map((day) => ({ day, monthIndex: nextMonthIndex, year }));
+  const next = daysInNextMonthArrSliced.map((_day) => ({ _year, _monthIndex: nextMonthIndex, _day }));
 
   return [...arraySum, ...next];
 };
