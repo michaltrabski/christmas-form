@@ -56,7 +56,7 @@ export const Form = () => {
 
   useEffect(() => {
     axios
-      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${selectedYear}`, {
+      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${selectedYear || 2023}`, {
         headers: {
           "X-Api-Key": import.meta.env.VITE_API_KEY,
         },
