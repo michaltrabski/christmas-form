@@ -1,18 +1,19 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
+import { getDaysInMonthArr, hourMinuteToStr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
 import { HOLIDAY_TYPES, HolidayInfo } from "../constants/constants";
 
 interface DatePickerProps {
   holidaysInfo: HolidayInfo[];
-  selectDate: (year: number, monthIndex: number, selectedDay: number) => void;
+  selectDate: (year: number, monthIndex: number, selectedDay: number, time?: string) => void;
   selectedYear: number | null;
   selectedMonthIndex: number | null;
   selectedDay: number | null;
+  selectedTime?: string;
 }
 
-export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, selectedYear, selectedMonthIndex, selectedDay }) => {
+export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, selectedYear, selectedMonthIndex, selectedDay, selectedTime }) => {
   const [callendarYear, setCallendarYear] = useState(() => new Date().getFullYear());
   const [callendarMonthIndex, setCallendarMonthIndex] = useState(() => new Date().getMonth());
 
@@ -165,16 +166,27 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, sele
           </p>
         )}
       </div>
-      <div>
-        <p className="text-[#000853] font-normal text-base mb-1">Time</p>
-        {["11:00", "13:30", "17:30", "19:00"].map((time) => {
-          return (
-            <div className="pb-2">
-              <button className="bg-white border border-[#CBB6E5] px-3 py-2 text-[#000853] rounded-lg">{time}</button>
-            </div>
-          );
-        })}
-      </div>
+
+      {selectedYear && selectedMonthIndex && selectedDay && (
+        <div>
+          <p className="text-[#000853] font-normal text-base mb-1">Time</p>
+          {["11:00", "13:30", "16:00", "18:45"].map((_time) => {
+            const isSelected = selectedTime === _time;
+            const cssSelected = isSelected ? "border-2 border-[#761BE4]" : "";
+
+            return (
+              <div key={_time} className="pb-2">
+                <button
+                  className={twMerge("bg-white border border-[#CBB6E5] px-3 py-2 text-[#000853] rounded-lg", cssSelected)}
+                  onClick={() => selectDate(selectedYear, selectedMonthIndex, selectedDay, _time)}
+                >
+                  {_time}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

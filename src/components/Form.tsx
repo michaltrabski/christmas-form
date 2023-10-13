@@ -29,6 +29,9 @@ export const Form = () => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState<number | null>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  // const [selectedHour, setSelectedHour] = useState<number | null>(null);
+  // const [selectedMinute, setSelectedMinute] = useState<number | null>(null);
+  const [selectedTime, setSelectedTime] = useState("");
 
   const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
 
@@ -131,11 +134,22 @@ export const Form = () => {
   };
 
   const selectDate = useCallback(
-    (year: number, monthIndex: number, day: number) => {
+    (year: number, monthIndex: number, day: number, time?: string) => {
+      if (time) {
+        setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, day, time) }));
+        setSelectedYear(year);
+        setSelectedMonthIndex(monthIndex);
+        setSelectedDay(day);
+        setSelectedTime(time);
+
+        return;
+      }
+
       setFormInfo((prev) => ({ ...prev, dateStr: yearMonthIndexDayToStr(year, monthIndex, day) }));
       setSelectedYear(year);
       setSelectedMonthIndex(monthIndex);
       setSelectedDay(day);
+      setSelectedTime("");
     },
     [setFormInfo, setSelectedDay, setSelectedMonthIndex, setSelectedYear]
   );
@@ -219,10 +233,17 @@ export const Form = () => {
         </div>
 
         <div className="mb-2">
-          <input type="date" name="date" id="date" className="hidden" value={date} readOnly />
+          <input type={selectedTime ? "datetime-local" : "date"} name="date" id="date" className="hidden" value={date} onChange={handleChange} />
 
           {holidaysInfo ? (
-            <DatePicker holidaysInfo={holidaysInfo} selectDate={selectDate} selectedYear={selectedYear} selectedMonthIndex={selectedMonthIndex} selectedDay={selectedDay} />
+            <DatePicker
+              holidaysInfo={holidaysInfo}
+              selectDate={selectDate}
+              selectedYear={selectedYear}
+              selectedMonthIndex={selectedMonthIndex}
+              selectedDay={selectedDay}
+              selectedTime={selectedTime}
+            />
           ) : (
             <p className="pb-2">Fetching data about holidays</p>
           )}
@@ -255,10 +276,6 @@ export const Form = () => {
           )}
         </div>
       </form>
-
-      <pre>
-        <code>{JSON.stringify(formInfo, null, 2)}</code>
-      </pre>
     </div>
   );
 };

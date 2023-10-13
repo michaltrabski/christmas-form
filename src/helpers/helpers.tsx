@@ -6,13 +6,24 @@ export const monthIndexToName = (monthIndex: number) => {
   return months[monthIndex];
 };
 
-export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: number) => {
+export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: number, time?: string) => {
   const month = monthIndex + 1;
 
   const monthStr = month < 10 ? `0${month}` : `${month}`;
   const dayStr = day < 10 ? `0${day}` : `${day}`;
 
+  if (time) {
+    return `${year}-${monthStr}-${dayStr}T${time}`;
+  }
+
   return `${year}-${monthStr}-${dayStr}`;
+};
+
+export const hourMinuteToStr = (hour: number, minute: number) => {
+  const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
+  const minuteStr = minute < 10 ? `0${minute}` : `${minute}`;
+
+  return `${hourStr}:${minuteStr}`;
 };
 
 export const getDaysInMonthArr = (_year: number, _monthIndex: number) => {
