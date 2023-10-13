@@ -2,10 +2,10 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
-import { HOLIDAY_TYPES, HolidayInfo } from "../constants/constants";
+import { COUNTRY_CODE, HOLIDAY_TYPES, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
+import axios from "axios";
 
 interface DatePickerProps {
-  holidaysInfo: HolidayInfo[];
   selectDate: (year: number, monthIndex: number, selectedDay: number, time?: string) => void;
   selectedYear: number | null;
   selectedMonthIndex: number | null;
@@ -13,10 +13,11 @@ interface DatePickerProps {
   selectedTime?: string;
 }
 
-export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, selectedYear, selectedMonthIndex, selectedDay, selectedTime }) => {
+export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, selectedMonthIndex, selectedDay, selectedTime }) => {
   const [callendarYear, setCallendarYear] = useState(() => new Date().getFullYear());
   const [callendarMonthIndex, setCallendarMonthIndex] = useState(() => new Date().getMonth());
 
+  const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
   const [holidayName, setHolidayName] = useState("");
 
   useEffect(() => {
@@ -29,7 +30,7 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, sele
       return;
     }
 
-    const holiday = holidaysInfo.find((h) => {
+    const holiday = holidaysInfo?.find((h) => {
       const isTheSameDate = h.date === yearMonthIndexDayToStr(selectedYear, selectedMonthIndex, selectedDay);
       const isTypeObservance = h.type === HOLIDAY_TYPES.OBSERVANCE;
 
@@ -43,6 +44,25 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, sele
 
     setHolidayName("");
   }, [holidaysInfo, selectedYear, selectedMonthIndex, selectedDay]);
+
+  useEffect(() => {
+    axios
+      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${callendarYear}`, {
+        headers: {
+          "X-Api-Key": import.meta.env.VITE_API_KEY,
+        },
+      })
+      .then((res) => {
+        console.log("res", res);
+        setHolidaysInfo(res.data);
+      })
+      .catch((err) => {
+        console.log("err", err);
+
+        // if api is not working, use fake data
+        setHolidaysInfo(() => holidaysExampleResponse);
+      });
+  }, [callendarYear]);
 
   const monthName = monthIndexToName(callendarMonthIndex);
 
@@ -131,7 +151,7 @@ export const DatePicker: FC<DatePickerProps> = ({ holidaysInfo, selectDate, sele
                       const dateAsString = yearMonthIndexDayToStr(_year, _monthIndex, _day);
 
                       const isSunday = i % 7 === 6;
-                      const isNationalHoliday = holidaysInfo.find((h) => {
+                      const isNationalHoliday = holidaysInfo?.find((h) => {
                         const isTheSameDate = h.date === dateAsString;
                         const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
 

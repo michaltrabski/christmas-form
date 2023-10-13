@@ -29,11 +29,7 @@ export const Form = () => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState<number | null>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  // const [selectedHour, setSelectedHour] = useState<number | null>(null);
-  // const [selectedMinute, setSelectedMinute] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState("");
-
-  const [holidaysInfo, setHolidaysInfo] = useState<HolidayInfo[] | null>(null);
 
   const [formInfo, setFormInfo] = useState<FormInfo>(() => initialValue);
   const [isFormSent, setIsFormSent] = useState(false);
@@ -53,25 +49,6 @@ export const Form = () => {
     const { errors } = validateForm(newFormInfo);
     setFormError(errors);
   };
-
-  useEffect(() => {
-    axios
-      .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${selectedYear || 2023}`, {
-        headers: {
-          "X-Api-Key": import.meta.env.VITE_API_KEY,
-        },
-      })
-      .then((res) => {
-        console.log("res", res);
-        setHolidaysInfo(res.data);
-      })
-      .catch((err) => {
-        console.log("err", err);
-
-        // if api is not working, use fake data
-        setHolidaysInfo(() => holidaysExampleResponse);
-      });
-  }, [selectedYear]);
 
   const formRef = React.useRef<HTMLFormElement | null>(null);
 
@@ -235,23 +212,12 @@ export const Form = () => {
         <div className="mb-2">
           <input type={selectedTime ? "datetime-local" : "date"} name="date" id="date" className="hidden" value={date} onChange={handleChange} />
 
-          {holidaysInfo ? (
-            <DatePicker
-              holidaysInfo={holidaysInfo}
-              selectDate={selectDate}
-              selectedYear={selectedYear}
-              selectedMonthIndex={selectedMonthIndex}
-              selectedDay={selectedDay}
-              selectedTime={selectedTime}
-            />
-          ) : (
-            <p className="pb-2">Fetching data about holidays</p>
-          )}
+          <DatePicker selectDate={selectDate} selectedYear={selectedYear} selectedMonthIndex={selectedMonthIndex} selectedDay={selectedDay} selectedTime={selectedTime} />
           {formError.dateStr && <p className="text-sm text-red-500">{formError.dateStr}</p>}
         </div>
 
         <div className="mb-2">
-          <button type="submit" className="block mb-2 w-full bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled={isFormError || !holidaysInfo}>
+          <button type="submit" className="block mb-2 w-full bg-primary text-white rounded px-8 py-2 gap-2 disabled:bg-[#CBB6E5]" disabled={isFormError}>
             Send Application
           </button>
 
