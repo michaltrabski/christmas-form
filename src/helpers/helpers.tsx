@@ -19,13 +19,6 @@ export const yearMonthIndexDayToStr = (year: number, monthIndex: number, day: nu
   return `${year}-${monthStr}-${dayStr}`;
 };
 
-export const hourMinuteToStr = (hour: number, minute: number) => {
-  const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
-  const minuteStr = minute < 10 ? `0${minute}` : `${minute}`;
-
-  return `${hourStr}:${minuteStr}`;
-};
-
 export const getDaysInMonthArr = (_year: number, _monthIndex: number) => {
   const firstDayIndex = new Date(_year, _monthIndex, 1).getDay(); // 0 - Sunday, 1 - Monday, etc.
 

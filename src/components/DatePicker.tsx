@@ -1,6 +1,6 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { getDaysInMonthArr, hourMinuteToStr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
+import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
 import { HOLIDAY_TYPES, HolidayInfo } from "../constants/constants";
 

@@ -58,7 +58,7 @@ export const Form = () => {
     axios
       .get(`https://api.api-ninjas.com/v1/holidays?country=${COUNTRY_CODE}&year=${selectedYear}`, {
         headers: {
-          "X-Api-Key": "8DX8eEe67njS1lbThFsdSw==rQQNpQ8PYbPZBjrx", // change it later to process.env.REACT_APP_API_KEY
+          "X-Api-Key": import.meta.env.VITE_API_KEY,
         },
       })
       .then((res) => {
