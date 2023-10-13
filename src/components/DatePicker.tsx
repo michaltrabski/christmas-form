@@ -1,9 +1,10 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import axios from "axios";
+
 import { getDaysInMonthArr, monthIndexToName, yearMonthIndexDayToStr } from "../helpers/helpers";
 import { IconError } from "../icons/IconError";
 import { COUNTRY_CODE, HOLIDAY_TYPES, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
-import axios from "axios";
 
 interface DatePickerProps {
   selectDate: (year: number, monthIndex: number, selectedDay: number, time?: string) => void;

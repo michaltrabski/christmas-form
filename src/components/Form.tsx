@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import axios from "axios";
-import { COUNTRY_CODE, HolidayInfo, holidaysExampleResponse } from "../constants/constants";
 import { twMerge } from "tailwind-merge";
+
 import { DatePicker } from "./DatePicker";
 import { validateForm, yearMonthIndexDayToStr } from "../helpers/helpers";
 
