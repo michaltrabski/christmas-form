@@ -161,6 +161,14 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
             })}
           </div>
         </div>
+        {holidayName && (
+          <p className="pb-2">
+            <span className="relative top-[-1px] pr-1">
+              <IconError />
+            </span>
+            <span>{holidayName}</span>
+          </p>
+        )}
       </div>
       <div className="w-[20%]">
         {selectedYear && selectedMonthIndex && selectedDay && (
