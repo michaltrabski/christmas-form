@@ -100,110 +100,90 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
   const daysInMonthArray = useMemo(() => getDaysInMonthArray(callendarYear, callendarMonthIndex), [callendarYear, callendarMonthIndex]);
 
   const cssDay =
-    "p-2 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center font-semibold text-sm day disabled:text-[#898DA9] disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
+    "p-2 block flex-1 leading-9 border-0 rounded-full cursor-pointer text-center font-semibold text-sm disabled:text-[#898DA9] disabled:cursor-default disabled:bg-white disabled:hover:bg-white";
 
   return (
-    <div className="flex gap-4">
-      <div>
+    <div className="flex gap-2">
+      <div className="w-[80%]">
         <p className="mb-1">Date</p>
-        <div className="mb-3">
-          <div className="rounded-lg bg-white p-4 border border-[#CBB6E5]">
-            <div className="">
-              <div className="flex justify-between mb-2">
-                <button
-                  onClick={() => prevMonth()}
-                  type="button"
-                  className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                >
-                  <IconPolygonLeft />
-                </button>
+        <div className="bg-white border border-[#CBB6E5] rounded-lg p-4">
+          <div className="flex justify-between mb-2">
+            <button onClick={() => prevMonth()} type="button" className="bg-white rounded-lg hover:bg-gray-100 text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200">
+              <IconPolygonLeft />
+            </button>
 
-                <div className="text-sm rounded-lg text-gray-900 bg-white font-semibold py-2.5 px-5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                  {monthName} {callendarYear}
-                </div>
-                <button
-                  onClick={() => nextMonth()}
-                  type="button"
-                  className="bg-white rounded-lg hover:bg-gray-100 hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
-                >
-                  <IconPolygonRight />
-                </button>
-              </div>
+            <div className="text-sm rounded-lg text-gray-900 bg-white font-semibold py-2.5 px-5 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+              {monthName} {callendarYear}
             </div>
+            <button
+              onClick={() => nextMonth()}
+              type="button"
+              className="bg-white rounded-lg hover:bg-gray-100 hover:text-gray-900  text-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
+              <IconPolygonRight />
+            </button>
+          </div>
+          <div className="grid grid-cols-7 mb-1">
+            {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
+              return (
+                <span key={day} className="text-center h-6 leading-6 text-sm font-medium">
+                  {day}
+                </span>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-7">
+            {daysInMonthArray.map(({ _year, _monthIndex, _day }, i) => {
+              const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
 
-            <div className="flex p-1">
-              <div>
-                <div className="days-of-week grid grid-cols-7 mb-1">
-                  {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => {
-                    return (
-                      <span key={day} className="text-center h-6 leading-6 text-sm font-medium">
-                        {day}
-                      </span>
-                    );
-                  })}
-                </div>
-                <div className="w-64 grid grid-cols-7">
-                  {daysInMonthArray.map(({ _year, _monthIndex, _day }, i) => {
-                    const cssSelectedDay = selectedDay === _day && selectedMonthIndex === _monthIndex && selectedYear === _year ? "bg-[#761BE4] rounded-full text-white" : "";
+              const dateAsString = valuesToDateString(_year, _monthIndex, _day);
 
-                    const dateAsString = valuesToDateString(_year, _monthIndex, _day);
+              const isSunday = i % 7 === 6;
+              const isNationalHoliday = holidaysInfo?.find((h) => {
+                const isTheSameDate = h.date === dateAsString;
+                const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
 
-                    const isSunday = i % 7 === 6;
-                    const isNationalHoliday = holidaysInfo?.find((h) => {
-                      const isTheSameDate = h.date === dateAsString;
-                      const isTypeNationalHoliday = h.type === HOLIDAY_TYPES.NATIONAL_HOLIDAY;
+                return isTheSameDate && isTypeNationalHoliday;
+              });
 
-                      return isTheSameDate && isTypeNationalHoliday;
-                    });
+              const isDayInCurrentMonth = callendarMonthIndex === _monthIndex;
 
-                    const isDayInCurrentMonth = callendarMonthIndex === _monthIndex;
-
-                    return (
-                      <button
-                        key={dateAsString}
-                        className={twMerge(cssDay, cssSelectedDay)}
-                        onClick={() => selectDate(callendarYear, callendarMonthIndex, _day)}
-                        disabled={isSunday || !!isNationalHoliday || !isDayInCurrentMonth}
-                      >
-                        {_day}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+              return (
+                <button
+                  key={dateAsString}
+                  className={twMerge(cssDay, cssSelectedDay)}
+                  onClick={() => selectDate(callendarYear, callendarMonthIndex, _day)}
+                  disabled={isSunday || !!isNationalHoliday || !isDayInCurrentMonth}
+                >
+                  {_day}
+                </button>
+              );
+            })}
           </div>
         </div>
-        {holidayName && (
-          <p className="pb-2">
-            <span className="relative top-[-1px] pr-1">
-              <IconError />
-            </span>
-            <span>{holidayName}</span>
-          </p>
+      </div>
+      <div className="w-[20%]">
+        {selectedYear && selectedMonthIndex && selectedDay && (
+          <>
+            <p className="mb-1">Time</p>
+            {["11:00", "13:30", "16:00", "18:45"].map((_time) => {
+              const isSelected = selectedTime === _time;
+              const cssSelected = isSelected ? "border-2 border-[#761BE4]" : "";
+
+              return (
+                <div key={_time} className="pb-2">
+                  <button
+                    className={twMerge("bg-white border border-[#CBB6E5] px-3 py-2 rounded-lg w-full", cssSelected)}
+                    onClick={() => selectDate(selectedYear, selectedMonthIndex, selectedDay, _time)}
+                  >
+                    {_time}
+                  </button>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
-
-      {selectedYear && selectedMonthIndex && selectedDay && (
-        <div>
-          <p className="mb-1">Time</p>
-          {["11:00", "13:30", "16:00", "18:45"].map((_time) => {
-            const isSelected = selectedTime === _time;
-            const cssSelected = isSelected ? "border-2 border-[#761BE4]" : "";
-
-            return (
-              <div key={_time} className="pb-2">
-                <button
-                  className={twMerge("bg-white border border-[#CBB6E5] px-3 py-2 rounded-lg", cssSelected)}
-                  onClick={() => selectDate(selectedYear, selectedMonthIndex, selectedDay, _time)}
-                >
-                  {_time}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };
