@@ -49,11 +49,15 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
   }, [holidaysInfo, selectedYear, selectedMonthIndex, selectedDay]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
     axios
       .get(`${HOLIDAYS_ENDPOINT}?country=${COUNTRY_CODE}&year=${callendarYear}`, {
         headers: {
           "X-Api-Key": import.meta.env.VITE_API_KEY,
         },
+        signal,
       })
       .then((res) => {
         console.log("res", res);
@@ -65,6 +69,10 @@ export const DatePicker: FC<DatePickerProps> = ({ selectDate, selectedYear, sele
         // if api is not working, use fake data
         setHolidaysInfo(() => holidaysExampleResponse);
       });
+
+    return () => {
+      abortController.abort();
+    };
   }, [callendarYear]);
 
   const monthName = monthIndexToName(callendarMonthIndex);
